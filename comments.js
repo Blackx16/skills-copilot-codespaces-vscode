@@ -1,53 +1,33 @@
-//create web server
-const express = require('express');
-const app = express();
-const path = require('path');
-const fs = require('fs');
+// Create web server
+var express = require('express');
+var app = express();
+var bodyParser = require('body-parser');
+var fs = require('fs');
 
-//set up server
-app.use(express.static('public'));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
-//get request
+// Create comments file if it doesn't exist
+var commentsFile = 'comments.txt';
+if (!fs.existsSync(commentsFile))
+    fs.writeFileSync(commentsFile, "");
+
+// Get all comments
 app.get('/comments', (req, res) => {
-  fs.readFile('comments.json', (err, data) => {
-    if (err) {
-      console.log(err);
-      res.send('error');
-    }
-    else {
-      res.send(data);
-    }
-  });
+    res.send(fs.readFileSync(commentsFile, 'utf8'));
 });
 
-//post request
+// Add a comment
 app.post('/comments', (req, res) => {
-  let newComment = {
-    name: req.query.name,
-    comment: req.query.comment
-  };
-  fs.readFile('comments.json', (err, data) => {
-    if (err) {
-      console.log(err);
-      res.send('error');
+    var comment = req.body.comment;
+    if (!comment) {
+        res.send('No comment provided');
+        return;
     }
-    else {
-      let comments = JSON.parse(data);
-      comments.push(newComment);
-      fs.writeFile('comments.json', JSON.stringify(comments), (err) => {
-        if (err) {
-          console.log(err);
-          res.send('error');
-        }
-        else {
-          res.send('success');
-        }
-      });
-    }
-  });
+    fs.appendFileSync(commentsFile, comment + '\n');
+    res.send('Comment added');
 });
 
-//listen on port 3000
 app.listen(3000, () => {
-  console.log('listening on port 3000');
+    console.log('Server running on port 3000');
 });
