@@ -1,100 +1,44 @@
 //create web server
-const express = require('express');
-const app = express();
-const port = 3000;
+var express = require('express');
+var app = express();
+var bodyParser = require('body-parser');
+var fs = require('fs');
+var path = require('path');
+var commentsPath = path.join(__dirname, 'comments.json');
 
-//create a route
-app.get('/', (req, res) => {
-  res.send('Hello World!');
+app.use(express.static('public'));
+app.use(bodyParser.json());
+
+// Get comments
+app.get('/comments', function(req, res) {
+  fs.readFile(commentsPath, function(err, data) {
+    if (err) {
+      console.error(err);
+      process.exit(1);
+    }
+    res.json(JSON.parse(data));
+  });
 });
 
-//create a route
-app.get('/comments', (req, res) => {
-  res.send('Comments page');
+// Add comments
+app.post('/comments', function(req, res) {
+  fs.readFile(commentsPath, function(err, data) {
+    if (err) {
+      console.error(err);
+      process.exit(1);
+    }
+    var comments = JSON.parse(data);
+    comments.push(req.body);
+    fs.writeFile(commentsPath, JSON.stringify(comments, null, 4), function(err) {
+      if (err) {
+        console.error(err);
+        process.exit(1);
+      }
+      res.json(comments);
+    });
+  });
 });
 
-//create a route
-app.get('/about', (req, res) => {
-  res.send('About page');
+app.listen(3000, function() {
+  console.log('Server listening on port 3000');
 });
-
-//create a route
-app.get('/contact', (req, res) => {
-  res.send('Contact page');
-});
-
-//listen to port
-app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
-});
-
-// Path: server.js
-//create web server
-const express = require('express');
-const app = express();
-const port = 3000;
-
-//create a route
-app.get('/', (req, res) => {
-  res.send('Hello World!');
-});
-
-//create a route
-app.get('/comments', (req, res) => {
-  res.send('Comments page');
-});
-
-//create a route
-app.get('/about', (req, res) => {
-  res.send('About page');
-});
-
-//create a route
-app.get('/contact', (req, res) => {
-  res.send('Contact page');
-});
-
-//listen to port
-app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
-});
-
-// Path: about.js
-//create web server
-const express = require('express');
-const app = express();
-const port = 3000;
-
-//create a route
-app.get('/', (req, res) => {
-  res.send('Hello World!');
-});
-
-//create a route
-app.get('/comments', (req, res) => {
-  res.send('Comments page');
-});
-
-//create a route
-app.get('/about', (req, res) => {
-  res.send('About page');
-});
-
-//create a route
-app.get('/contact', (req, res) => {
-  res.send('Contact page');
-});
-
-//listen to port
-app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
-});
-
-// Path: contact.js
-//create web server
-const express = require('express');
-const app = express();
-const port = 3000;
-
-//create a route
-app.get('/', (req, res) => {
