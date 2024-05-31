@@ -1,44 +1,53 @@
 //create web server
-var express = require('express');
-var app = express();
-var bodyParser = require('body-parser');
-var fs = require('fs');
-var path = require('path');
-var commentsPath = path.join(__dirname, 'comments.json');
+const express = require('express');
+const app = express();
+const path = require('path');
+const fs = require('fs');
 
+//set up server
 app.use(express.static('public'));
-app.use(bodyParser.json());
 
-// Get comments
-app.get('/comments', function(req, res) {
-  fs.readFile(commentsPath, function(err, data) {
+//get request
+app.get('/comments', (req, res) => {
+  fs.readFile('comments.json', (err, data) => {
     if (err) {
-      console.error(err);
-      process.exit(1);
+      console.log(err);
+      res.send('error');
     }
-    res.json(JSON.parse(data));
+    else {
+      res.send(data);
+    }
   });
 });
 
-// Add comments
-app.post('/comments', function(req, res) {
-  fs.readFile(commentsPath, function(err, data) {
+//post request
+app.post('/comments', (req, res) => {
+  let newComment = {
+    name: req.query.name,
+    comment: req.query.comment
+  };
+  fs.readFile('comments.json', (err, data) => {
     if (err) {
-      console.error(err);
-      process.exit(1);
+      console.log(err);
+      res.send('error');
     }
-    var comments = JSON.parse(data);
-    comments.push(req.body);
-    fs.writeFile(commentsPath, JSON.stringify(comments, null, 4), function(err) {
-      if (err) {
-        console.error(err);
-        process.exit(1);
-      }
-      res.json(comments);
-    });
+    else {
+      let comments = JSON.parse(data);
+      comments.push(newComment);
+      fs.writeFile('comments.json', JSON.stringify(comments), (err) => {
+        if (err) {
+          console.log(err);
+          res.send('error');
+        }
+        else {
+          res.send('success');
+        }
+      });
+    }
   });
 });
 
-app.listen(3000, function() {
-  console.log('Server listening on port 3000');
+//listen on port 3000
+app.listen(3000, () => {
+  console.log('listening on port 3000');
 });
